@@ -139,11 +139,14 @@ async function run() {
     });
 
     // bids related apis
-    app.get("/bids", async (req, res) => {
+    app.get("/bids",varifyFirebaseToken,  async (req, res) => {
       const email = req.query.email;
       const query = {};
       if (email) {
         query.buyer_email = email;
+        if(email !== req.token_email){
+            return res.status(403).send({message: 'forbidden accesss'})
+        }
       }
 
       const cursor = bidsCollection.find(query);
@@ -183,7 +186,7 @@ async function run() {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
